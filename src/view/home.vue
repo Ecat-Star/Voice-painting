@@ -47,11 +47,10 @@ import { Microphone, Loading, PictureFilled } from '@element-plus/icons-vue'
 
 const speechStartText = ref('')
 const speechEndText = ref('')
-
+// 语音输入状态
 const speeching = ref(false)
-// 语音识别出的文字
-const recognizedText = ref('')
-// 开始语音输入
+const recognizedText = ref('') // 识别出的文字
+//开始语音输入
 const startSpeech = () => {
   speeching.value = true
   speechStartText.value = '语音正在输入...'
@@ -67,6 +66,7 @@ const clearCanvas = () => {
   speechEndText.value = ''
   recognizedText.value = ''
 }
+
 </script>
 
 <style scoped>
