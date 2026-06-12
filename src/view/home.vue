@@ -1,0 +1,124 @@
+<template>
+  <div class="home-container">
+    <div class="home-header">
+      <h1>欢迎来到语音绘画！</h1>
+      <p>在这里，你可以通过语音输入来创作属于你的艺术作品。</p>
+    </div>
+    <div class="home-content">
+      <div class="button-container">
+        <el-button type="primary" size="large" :disabled="speeching" @click="startSpeech">
+          开始语音输入
+        </el-button>
+        <el-button type="danger" size="large" :disabled="!speeching" @click="endSpeech">
+          结束语音输入
+        </el-button>
+      </div>
+      <div class="painting-result">
+        <template v-if="speeching">
+          <div class="result-inner">
+            <el-icon class="recording-icon" :size="32"><Microphone /></el-icon>
+            <p>{{ speechStartText }}</p>
+          </div>
+        </template>
+        <template v-else-if="speechEndText">
+          <div class="result-inner">
+            <el-icon :size="32" color="#409eff"><Loading /></el-icon>
+            <p>{{ speechEndText }}</p>
+          </div>
+        </template>
+        <template v-else>
+          <div class="result-inner">
+            <el-icon :size="48" color="#c0c4cc"><PictureFilled /></el-icon>
+            <p class="hint-text">点击上方按钮开始你的创作之旅吧！</p>
+          </div>
+        </template>
+      </div>
+    </div>
+  </div>
+</template>
+
+<script lang="ts" setup>
+import { ref } from 'vue'
+import { Microphone, Loading, PictureFilled } from '@element-plus/icons-vue'
+
+const speechStartText = ref('')
+const speechEndText = ref('')
+
+const speeching = ref(false)
+
+const startSpeech = () => {
+  speeching.value = true
+  speechStartText.value = '语音正在输入...'
+  speechEndText.value = ''
+}
+
+const endSpeech = () => {
+  speeching.value = false
+  speechEndText.value = '语音输入结束，正在绘画中，请等待...'
+}
+</script>
+
+<style scoped>
+.home-container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 40px 20px;
+}
+
+.home-header {
+  text-align: center;
+  margin-bottom: 32px;
+}
+
+.home-header h1 {
+  font-size: 28px;
+  color: #303133;
+  margin-bottom: 8px;
+}
+
+.home-header p {
+  color: #909399;
+  font-size: 15px;
+}
+
+.button-container {
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.painting-result {
+  height: 400px;
+  background-color: #fafafa;
+  border: 1px dashed #dcdfe6;
+  border-radius: 8px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.result-inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  color: #606266;
+  font-size: 15px;
+}
+
+.recording-icon {
+  color: #f56c6c;
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+
+.hint-text {
+  color: #c0c4cc;
+  font-size: 14px;
+}
+</style>
