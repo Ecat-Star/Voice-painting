@@ -15,7 +15,7 @@
         <!-- 清除画布按钮 -->
         <el-button @click="clearCanvas">清除画布</el-button>
       </div>
-      <div ref="canvasRef" class="painting-result">
+      <canvas ref="canvasRef" class="painting-result">
         <template v-if="speeching">
           <div class="result-inner">
             <el-icon class="recording-icon" :size="32"><Microphone /></el-icon>
@@ -36,7 +36,7 @@
             <p class="hint-text">点击上方按钮开始你的创作之旅吧！</p>
           </div>
         </template>
-      </div>
+      </canvas>
     </div>
   </div>
 </template>
@@ -58,6 +58,60 @@ const startSpeech = () => {
   speeching.value = true
   speechStartText.value = '语音正在输入...'
   speechEndText.value = ''
+  // 1. 创建语音识别实例
+  recognition = new webkitSpeechRecognition()
+
+  // 2. 配置参数
+  recognition.lang = 'zh-CN' // 中文
+  recognition.continuous = true // 持续识别
+  recognition.interimResults = true // 返回中间结果
+
+  // 3. 监听识别结果
+  recognition.onresult = (event: SpeechRecognitionEvent) => {
+    let finalText = '' // 最终确认的文字
+    let interimText = '' // 正在识别中的文字
+
+    // 遍历所有识别结果
+    for (let i = 0; i < event.results.length; i++) {
+      const result = event.results[i]
+      const transcript = result[0].transcript // 识别出的文字
+
+      if (result.isFinal) {
+        // isFinal = true 表示用户说完了，这段文字是确定的
+        finalText += transcript
+      } else {
+        // isFinal = false 表示用户还在说，文字可能还会变
+        interimText += transcript
+      }
+    }
+
+    // 实时显示正在识别的文字
+    recognizedText.value = interimText || finalText
+
+    // 如果有最终结果，送去解析绘图
+    if (finalText) {
+      parseAndDraw(finalText)
+    }
+  }
+
+  // 4. 错误处理
+  recognition.onerror = (event) => {
+    console.error('语音识别出错:', event.error)
+    if (event.error === 'not-allowed') {
+      recognizedText.value = '请允许浏览器使用麦克风'
+    }
+    speeching.value = false
+  }
+
+  // 5. 识别意外结束时自动重启
+  recognition.onend = () => {
+    if (speeching.value) {
+      recognition!.start() // 还在录音状态就重启
+    }
+  }
+
+  // 6. 开始识别
+  recognition.start()
 }
 // 结束语音输入
 const endSpeech = () => {
@@ -74,9 +128,9 @@ onMounted(() => {
   const canvas = canvasRef.value!
   // 获取 2D 绘图上下文
   ctx = canvas.getContext('2d')!
-  // 画白色背景
-  ctx.fillStyle = '#ffffff'
-  ctx.fillRect(0, 0, 600, 400)
+  // // 画白色背景
+  // ctx.fillStyle = '#ffffff'
+  // ctx.fillRect(0, 0, 600, 400)
 })
 </script>
 
