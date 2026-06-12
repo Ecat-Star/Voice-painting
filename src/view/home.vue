@@ -12,6 +12,8 @@
         <el-button type="danger" size="large" :disabled="!speeching" @click="endSpeech">
           结束语音输入
         </el-button>
+        <!-- 清除画布按钮 -->
+        <el-button @click="clearCanvas">清除画布</el-button>
       </div>
       <div class="painting-result">
         <template v-if="speeching">
@@ -24,6 +26,8 @@
           <div class="result-inner">
             <el-icon :size="32" color="#409eff"><Loading /></el-icon>
             <p>{{ speechEndText }}</p>
+            <!-- 显示语音识别出的文字 -->
+            <p>识别结果：{{ recognizedText }}</p>
           </div>
         </template>
         <template v-else>
@@ -45,16 +49,23 @@ const speechStartText = ref('')
 const speechEndText = ref('')
 
 const speeching = ref(false)
-
+// 语音识别出的文字
+const recognizedText = ref('')
+// 开始语音输入
 const startSpeech = () => {
   speeching.value = true
   speechStartText.value = '语音正在输入...'
   speechEndText.value = ''
 }
-
+// 结束语音输入
 const endSpeech = () => {
   speeching.value = false
   speechEndText.value = '语音输入结束，正在绘画中，请等待...'
+}
+// 清除画布
+const clearCanvas = () => {
+  speechEndText.value = ''
+  recognizedText.value = ''
 }
 </script>
 
@@ -113,8 +124,13 @@ const endSpeech = () => {
 }
 
 @keyframes pulse {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.4; }
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.4;
+  }
 }
 
 .hint-text {
