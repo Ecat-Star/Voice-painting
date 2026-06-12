@@ -15,7 +15,7 @@
         <!-- 清除画布按钮 -->
         <el-button @click="clearCanvas">清除画布</el-button>
       </div>
-      <div class="painting-result">
+      <div ref="canvasRef" class="painting-result">
         <template v-if="speeching">
           <div class="result-inner">
             <el-icon class="recording-icon" :size="32"><Microphone /></el-icon>
@@ -42,7 +42,7 @@
 </template>
 
 <script lang="ts" setup>
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
 import { Microphone, Loading, PictureFilled } from '@element-plus/icons-vue'
 
 const speechStartText = ref('')
@@ -50,6 +50,9 @@ const speechEndText = ref('')
 // 语音输入状态
 const speeching = ref(false)
 const recognizedText = ref('') // 识别出的文字
+const canvasRef = ref<HTMLCanvasElement | null>(null) // 画布引用
+let ctx: CanvasRenderingContext2D | null = null // 画布上下文
+let recognition: ReturnType<typeof webkitSpeechRecognition> | null = null // 语音识别实例
 //开始语音输入
 const startSpeech = () => {
   speeching.value = true
@@ -66,7 +69,15 @@ const clearCanvas = () => {
   speechEndText.value = ''
   recognizedText.value = ''
 }
-
+onMounted(() => {
+  // 拿到 canvas 元素
+  const canvas = canvasRef.value!
+  // 获取 2D 绘图上下文
+  ctx = canvas.getContext('2d')!
+  // 画白色背景
+  ctx.fillStyle = '#ffffff'
+  ctx.fillRect(0, 0, 600, 400)
+})
 </script>
 
 <style scoped>
